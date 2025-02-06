@@ -1,0 +1,17 @@
+name: IAPExt
+
+platforms:
+    arm64-ios:
+        context:
+            weakFrameworks: ['StoreKit', 'UIKit', 'Foundation']
+
+    x86_64-ios:
+        context:
+            weakFrameworks: ['StoreKit', 'UIKit', 'Foundation']
+            
+    armv7-android:
+        context:
+            aaptExtraPackages: ['com.samsung.android.sdk.iap.lib']
+    arm64-android:
+        context:
+            aaptExtraPackages: ['com.samsung.android.sdk.iap.lib']

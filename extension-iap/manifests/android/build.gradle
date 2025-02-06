@@ -1,0 +1,7 @@
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.android.billingclient:billing:6.2.1'
+}
