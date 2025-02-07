@@ -34,4 +34,6 @@
                 android:excludeFromRecents="true"
                 android:theme="@style/Theme.Empty" />
     </application>
+
+    <uses-permission android:name="com.samsung.android.iap.permission.BILLING"/>
 </manifest>
