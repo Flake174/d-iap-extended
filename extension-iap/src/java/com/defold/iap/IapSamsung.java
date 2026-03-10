@@ -155,7 +155,7 @@ public class IapSamsung {
                                 transaction.put("ident", item.getItemId());
                                 transaction.put("state", IapJNI.TRANS_STATE_PURCHASED);
                                 transaction.put("date", item.getPurchaseDate());
-                                transaction.put("trans_ident", item.getOrderId());
+                                transaction.put("trans_ident", item.getPurchaseId());
                                 transaction.put("receipt", item.getPurchaseId());
                                 transaction.put("signature", item.getPaymentId());
                                 transaction.put("original_json", item.getJsonString());
@@ -165,7 +165,7 @@ public class IapSamsung {
                             pendingPurchases.put(transaction);
                         }
                     }
-                    if (!pendingPurchases.isEmpty()) {
+                    if (!pendingPurchases.length() > 0) {
                         Log.d(TAG, "Trying consume...");
                         listener.onPurchaseResult(IapJNI.BILLING_RESPONSE_RESULT_OK, pendingPurchases.toString());
                     }
