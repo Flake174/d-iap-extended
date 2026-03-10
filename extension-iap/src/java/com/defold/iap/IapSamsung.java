@@ -165,7 +165,7 @@ public class IapSamsung {
                             pendingPurchases.put(transaction);
                         }
                     }
-                    if (!pendingPurchases.length() > 0) {
+                    if (pendingPurchases.length() > 0) {
                         Log.d(TAG, "Trying consume...");
                         listener.onPurchaseResult(IapJNI.BILLING_RESPONSE_RESULT_OK, pendingPurchases.toString());
                     }
