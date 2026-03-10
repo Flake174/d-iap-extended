@@ -49,37 +49,6 @@ public class IapSamsung {
     }
 
     public void listItems(final String products, final IListProductsListener productsListener, final long commandPtr) {
-        // iapHelper.getOwnedList(HelperDefine.PRODUCT_TYPE_ALL, new OnGetOwnedListListener() {
-        //     public void onGetOwnedProducts(ErrorVo errorVo, ArrayList<OwnedProductVo> ownedList) {
-        //         Log.d(TAG, "onGetOwnedProducts");
-        //         if (errorVo.getErrorCode() == IapHelper.IAP_ERROR_NONE) {
-        //             StringJoiner joiner = new StringJoiner(",");
-        //             for (OwnedProductVo item : ownedList) {
-        //                 if (item.getIsConsumable()) {
-        //                     joiner.add(item.getPurchaseId());
-        //                 }
-        //             }
-        //             String productsToConsume = joiner.toString();
-        //             if (!productsToConsume.trim().isEmpty()) {
-        //                 Log.d(TAG, "start consuming...");
-        //                 iapHelper.consumePurchasedItems(productsToConsume, new OnConsumePurchasedItemsListener() {
-        //                     public void onConsumePurchasedItems(ErrorVo errorVo, ArrayList<ConsumeVo> consumeList) {
-        //                         if (errorVo.getErrorCode() == IapHelper.IAP_ERROR_NONE) {
-        //                             for (ConsumeVo item : consumeList) {
-        //                                 Log.d(TAG, "Purchase consumed successfully: " + item.getPurchaseId());
-        //                             }
-        //                         } else {
-        //                             Log.e(TAG, "Unable to consume purchase: " + errorVo.getErrorString());
-        //                         }
-        //                     }
-        //                 });
-        //             }
-        //         } else {
-        //             Log.e(TAG, "Unable to get owned purchases: " + errorVo.getErrorString());
-        //         }
-        //     }
-        // });
-
         iapHelper.getProductsDetails(products, new OnGetProductsDetailsListener() {
             @Override
             public void onGetProducts(ErrorVo errorVo, ArrayList<ProductVo> iapProductList) {
@@ -134,8 +103,7 @@ public class IapSamsung {
                             transaction.put("receipt", purchaseVo.getPurchaseId());
                             transaction.put("signature", purchaseVo.getPaymentId());
                             transaction.put("original_json", purchaseVo.getJsonString());
-                        }
-                        catch (JSONException e) {
+                        } catch (JSONException e) {
                             Log.wtf(TAG, "Failed to convert purchase", e);
                         }
                         listener.onPurchaseResult(IapJNI.BILLING_RESPONSE_RESULT_OK, transaction.toString());
@@ -173,6 +141,39 @@ public class IapSamsung {
 
     public void processPendingConsumables(final IPurchaseListener listener) {
         Log.d(TAG, "processPendingConsumables()");
+
+        iapHelper.getOwnedList(HelperDefine.PRODUCT_TYPE_ALL, new OnGetOwnedListListener() {
+            public void onGetOwnedProducts(ErrorVo errorVo, ArrayList<OwnedProductVo> ownedList) {
+                Log.d(TAG, "onGetOwnedProducts");
+                if (errorVo.getErrorCode() == IapHelper.IAP_ERROR_NONE) {
+                    JSONArray pendingPurchases = new JSONArray();
+
+                    for (OwnedProductVo item : ownedList) {
+                        if (item != null && item.getIsConsumable()) {
+                            JSONObject transaction = new JSONObject();
+                            try {
+                                transaction.put("ident", item.getItemId());
+                                transaction.put("state", IapJNI.TRANS_STATE_PURCHASED);
+                                transaction.put("date", item.getPurchaseDate());
+                                transaction.put("trans_ident", item.getOrderId());
+                                transaction.put("receipt", item.getPurchaseId());
+                                transaction.put("signature", item.getPaymentId());
+                                transaction.put("original_json", item.getJsonString());
+                            } catch (JSONException e) {
+                                Log.wtf(TAG, "Failed to convert purchase", e);
+                            }
+                            pendingPurchases.put(transaction);
+                        }
+                    }
+                    if (!pendingPurchases.isEmpty()) {
+                        Log.d(TAG, "Trying consume...");
+                        listener.onPurchaseResult(IapJNI.BILLING_RESPONSE_RESULT_OK, pendingPurchases.toString());
+                    }
+                } else {
+                    Log.e(TAG, "Unable to get owned purchases: " + errorVo.getErrorString());
+                }
+            }
+        });
     }
 
     public void acknowledgeTransaction(final String purchaseToken, final IPurchaseListener purchaseListener) {
