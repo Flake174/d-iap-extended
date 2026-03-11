@@ -150,14 +150,18 @@ public class IapSamsung {
 
                     for (OwnedProductVo item : ownedList) {
                         if (item != null && item.getIsConsumable()) {
-                            Log.d(TAG, "Found unconsumed item:" + item.toString());
+                            Log.d(TAG, "Found unconsumed item:" + item.getJsonString());
+                            Log.d(TAG, "getItemId" + item.getItemId());
+                            Log.d(TAG, "getPaymentId" + item.getPaymentId());
+                            Log.d(TAG, "getPurchaseId" + item.getPurchaseId());
+                            Log.d(TAG, "getPassThroughParam" + item.getPassThroughParam());
 
                             JSONObject transaction = new JSONObject();
                             try {
                                 transaction.put("ident", item.getItemId());
                                 transaction.put("state", IapJNI.TRANS_STATE_PURCHASED);
                                 transaction.put("date", item.getPurchaseDate());
-                                transaction.put("trans_ident", item.getPurchaseId());
+                                transaction.put("trans_ident", item.getPaymentId());
                                 transaction.put("receipt", item.getPurchaseId());
                                 transaction.put("signature", item.getPaymentId());
                                 transaction.put("original_json", item.getJsonString());
