@@ -150,6 +150,8 @@ public class IapSamsung {
 
                     for (OwnedProductVo item : ownedList) {
                         if (item != null && item.getIsConsumable()) {
+                            Log.d(TAG, "Found unconsumed item:" + item.toString());
+
                             JSONObject transaction = new JSONObject();
                             try {
                                 transaction.put("ident", item.getItemId());
@@ -162,13 +164,14 @@ public class IapSamsung {
                             } catch (JSONException e) {
                                 Log.wtf(TAG, "Failed to convert purchase", e);
                             }
-                            pendingPurchases.put(transaction);
+                            listener.onPurchaseResult(IapJNI.BILLING_RESPONSE_RESULT_OK, transaction.toString());
+
+                            // pendingPurchases.put(transaction);
                         }
                     }
-                    if (pendingPurchases.length() > 0) {
-                        Log.d(TAG, "Trying consume...");
-                        listener.onPurchaseResult(IapJNI.BILLING_RESPONSE_RESULT_OK, pendingPurchases.toString());
-                    }
+                    // if (pendingPurchases.length() > 0) {
+                    // Log.d(TAG, "Trying consume...");
+                    // }
                 } else {
                     Log.e(TAG, "Unable to get owned purchases: " + errorVo.getErrorString());
                 }
